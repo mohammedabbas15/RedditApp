@@ -9,17 +9,17 @@ import UIKit
 import Combine
 import Foundation
 
-class ViewController: UIViewController, UITableViewDataSourcePrefetching {
-    
-    func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
-        let lastIndexPath = IndexPath(row: (viewModel?.numberOfItems ?? 1) - 1, section: 0)
-        
-        guard indexPaths.contains(lastIndexPath) else {return}
-        viewModel?.getFeeds()
-    }
+class ViewController: UIViewController, UITableViewDataSourcePrefetching, UITableViewDataSource {
     
     var viewModel: ViewModelType?
     private var cancellable = Set<AnyCancellable>()
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupUI()
+        configureDataBinding()
+        viewModel?.getFeeds()
+    }
     
     lazy var tableView: UITableView = {
         let tableView = UITableView()
@@ -29,14 +29,7 @@ class ViewController: UIViewController, UITableViewDataSourcePrefetching {
         tableView.register(TableViewCell.self, forCellReuseIdentifier: TableViewCell.identifier)
         return tableView
     }()
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        setupUI()
-        configureDataBinding()
-        viewModel?.getFeeds()
-    }
-    
+        
     private func setupUI() {
         
         self.view.addSubview(tableView)
@@ -57,14 +50,9 @@ class ViewController: UIViewController, UITableViewDataSourcePrefetching {
         
         viewModel?.errorBinding.dropFirst().receive(on: DispatchQueue.main).sink
         { _ in
-            
-            // Handle error here for user
-            
+            print("Error binding data")
         }.store(in: &cancellable)
     }
-}
-
-extension ViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return viewModel?.numberOfItems ?? 0
@@ -83,15 +71,11 @@ extension ViewController: UITableViewDataSource {
         cell.configureCell(title: title, commentNumber: comment, score: score, imageData: imageData)
         return cell
     }
+    
+    func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
+        let lastIndexPath = IndexPath(row: (viewModel?.numberOfItems ?? 1) - 1, section: 0)
+        
+        guard indexPaths.contains(lastIndexPath) else {return}
+        viewModel?.getFeeds()
+    }
 }
-
-//extension ViewController: UITableViewDataSourcePrefetching {
-//
-//    func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
-//
-//        let lastIndexPath = IndexPath(row: (viewModel?.numberOfItems ?? 1) - 1, section: 0)
-//
-//        guard indexPaths.contains(lastIndexPath) else {return}
-//        viewModel?.getFeeds()
-//    }
-//}
