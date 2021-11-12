@@ -6,9 +6,9 @@
 //
 
 import Foundation
-@testable import CodeChallenge
+@testable import TMobileRedditApp
 
-class TestRepo: BaseRepository, RedditFeedRepositoryService {
+class TestRepo: BaseRepository, FeedRepositoryService {
     
     func searchFeed<T>(after: String?, modelType: T.Type, completionHandler: @escaping Completion<T>) where T : Decodable {
         
@@ -21,7 +21,7 @@ class TestRepo: BaseRepository, RedditFeedRepositoryService {
             }
             
             // Otherwise success
-            if let path = Bundle(for: CodeChallengeTests.self).path(forResource: "Sample", ofType: "json") {
+            if let path = Bundle(for: TMobileRedditAppTests.self).path(forResource: "Sample", ofType: "json") {
                 let url = URL(fileURLWithPath: path)
                 
                 do {
