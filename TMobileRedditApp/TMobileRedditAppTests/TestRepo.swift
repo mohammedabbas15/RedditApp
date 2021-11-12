@@ -10,37 +10,38 @@ import Foundation
 
 class TestRepo: BaseRepository, FeedRepositoryService {
     
-    func searchFeed<T>(after: String?, modelType: T.Type, completionHandler: @escaping Completion<T>) where T : Decodable {
-        
-        print("This should be fired")
+    func getFeedImage(from thumbnail: String, completionHandler: @escaping CompletionData) {
+        print("Are we here yet?")
+    }
+    
+
+    func searchFeed<T>(after: String?, modelType: T.Type, completionHandler: @escaping Completion<T>) where T: Decodable {
         
         DispatchQueue.global().asyncAfter(deadline: .now() + 2, execute: {
-            // if nil, force failure
+            
             if after == nil {
-                completionHandler(.failure(NetworkError.errorWith(message: "Mock Forced Error")))
+                
+                completionHandler(.failure(NetworkError.errorWith(message: " ")))
             }
             
-            // Otherwise success
             if let path = Bundle(for: TMobileRedditAppTests.self).path(forResource: "Sample", ofType: "json") {
+                
                 let url = URL(fileURLWithPath: path)
                 
                 do {
                     let data = try Data(contentsOf: url)
                     let model = try JSONDecoder().decode(modelType, from: data)
                     completionHandler(.success(model))
-                } catch {
+                }
+                catch {
                     completionHandler(.failure(NetworkError.parsingFailed(message: error.localizedDescription)))
                 }
                 
-            } else {
+            }
+            else {
+            
                 completionHandler(.failure(NetworkError.errorWith(message: "Mock Forced Error")))
             }
         })
-        
     }
-    
-    func getFeedImage(from thumbnail: String, completionHandler: @escaping CompletionData) {
-        // Come back to this if needed
-    }
-    
 }

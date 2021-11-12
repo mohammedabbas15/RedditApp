@@ -23,6 +23,44 @@ class TMobileRedditAppTests: XCTestCase {
 
     override func tearDownWithError() throws {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
+        
+        viewModel = nil
+        cancellable = nil
+        try super.tearDownWithError()
+    }
+    
+    func testGetFeedDataFailure() {
+        
+        let expectation = XCTestExpectation(description: "FAILURE")
+        var error: String?
+        
+        viewModel?.feedBinding.dropFirst().sink(receiveCompletion: {_ in}, receiveValue: {_ in XCTFail()}).store(in: &cancellable)
+        viewModel?.errorBinding.dropFirst().sink(receiveCompletion: {_ in}, receiveValue: { value in
+                error = value
+                expectation.fulfill()
+            }).store(in: &cancellable)
+        viewModel?.getFeeds()
+        
+        wait(for: [expectation], timeout: 3)
+        
+        XCTAssertEqual(error, "The operation couldn't be completed. (TMobileRedditApp.NetworkError error 1.)")
+    }
+    
+    func testGetFeedDataSuccess() {
+        
+        let expectation = XCTestExpectation(description: "SUCCESS")
+        
+        viewModel.after = "Success"
+        viewModel?.feedBinding.dropFirst().sink(receiveCompletion: { _ in}, receiveValue: { _ in expectation.fulfill()}).store(in: &cancellable)
+        viewModel?.errorBinding.dropFirst().sink(receiveCompletion: { _ in}, receiveValue: { _ in XCTFail()}).store(in: &cancellable)
+        viewModel?.getFeeds()
+        
+        wait(for: [expectation], timeout: 3)
+        
+        XCTAssertEqual(viewModel.numberOfItems, 25)
+        XCTAssertEqual(viewModel.getTitle(at: 0), "A nanobot picks up a lazy sperm by the tail and inseminates an egg with it")
+        XCTAssertEqual(viewModel.getCommentNumber(at: 0), "# comment: 2587")
+        XCTAssertEqual(viewModel.getScore(at: 0), "score: 32860")
     }
 
     func testExample() throws {
