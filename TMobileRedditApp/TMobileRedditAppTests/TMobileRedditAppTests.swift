@@ -31,7 +31,7 @@ class TMobileRedditAppTests: XCTestCase {
     
     func testGetFeedDataFailure() {
         
-        let expectation = XCTestExpectation(description: "FAILURE")
+        let expectation = XCTestExpectation(description: "")
         var error: String?
         
         viewModel?.feedBinding.dropFirst().sink(receiveCompletion: {_ in}, receiveValue: {_ in XCTFail()}).store(in: &cancellable)
@@ -43,7 +43,9 @@ class TMobileRedditAppTests: XCTestCase {
         
         wait(for: [expectation], timeout: 3)
         
-        XCTAssertEqual(error, "The operation couldn't be completed. (TMobileRedditApp.NetworkError error 1.)")
+        let assertStr = "The operation couldn't be completed. (TMobileRedditApp.NetworkError error 1.)"
+        
+        XCTAssertEqual(error?.description, assertStr)
     }
     
     func testGetFeedDataSuccess() {
@@ -59,8 +61,8 @@ class TMobileRedditAppTests: XCTestCase {
         
         XCTAssertEqual(viewModel.numberOfItems, 25)
         XCTAssertEqual(viewModel.getTitle(at: 0), "A nanobot picks up a lazy sperm by the tail and inseminates an egg with it")
-        XCTAssertEqual(viewModel.getCommentNumber(at: 0), "# comment: 2587")
-        XCTAssertEqual(viewModel.getScore(at: 0), "score: 32860")
+        XCTAssertEqual(viewModel.getCommentNumber(at: 0), "Comments: 2587")
+        XCTAssertEqual(viewModel.getScore(at: 0), "Score: 32860")
     }
 
     func testExample() throws {
